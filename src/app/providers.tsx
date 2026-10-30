@@ -5,6 +5,14 @@ import { Global, css } from "@emotion/react";
 import EmotionRegistry from "./EmotionRegistry";
 
 const globalStyles = css`
+  /* hub_web과 동일한 기본 폰트 스택 (Wanted Sans) */
+  :root {
+    --font-wanted: "Wanted Sans Variable", "Wanted Sans", -apple-system,
+      BlinkMacSystemFont, system-ui, "Segoe UI", "Apple SD Gothic Neo",
+      "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol", sans-serif;
+  }
+
   *,
   *::before,
   *::after {
@@ -19,8 +27,10 @@ const globalStyles = css`
   }
 
   body {
-    font-family: "Nanum Myeongjo", system-ui, -apple-system,
-      "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    font-family: var(--font-wanted);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
   }
 
   a {

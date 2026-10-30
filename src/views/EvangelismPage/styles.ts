@@ -16,8 +16,17 @@ export const C = {
 export const Page = styled.main`
   background: ${C.cream};
   color: ${C.ink};
-  font-family: "Nanum Myeongjo", system-ui, -apple-system, "Apple SD Gothic Neo",
-    "Noto Sans KR", sans-serif;
+  /* hub_web과 동일한 기본 폰트 (Wanted Sans) */
+  font-family: var(
+    --font-wanted,
+    "Wanted Sans Variable",
+    "Wanted Sans",
+    -apple-system,
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    sans-serif
+  );
+  letter-spacing: -0.01em;
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;

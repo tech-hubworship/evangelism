@@ -31,18 +31,20 @@ export default function RootLayout({
     React.createElement(
       "head",
       null,
+      // hub_web과 동일한 기본 폰트: Wanted Sans Variable (jsDelivr CDN)
       React.createElement("link", {
         rel: "preconnect",
-        href: "https://fonts.googleapis.com",
-      }),
-      React.createElement("link", {
-        rel: "preconnect",
-        href: "https://fonts.gstatic.com",
+        href: "https://cdn.jsdelivr.net",
         crossOrigin: "anonymous",
       }),
       React.createElement("link", {
+        rel: "preload",
+        as: "style",
+        href: "https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css",
+      }),
+      React.createElement("link", {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap",
+        href: "https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css",
       })
     ),
     React.createElement(
