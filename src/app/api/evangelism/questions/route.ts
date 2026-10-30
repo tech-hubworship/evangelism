@@ -40,7 +40,8 @@ export async function POST(req: Request) {
       return jsonError(`질문은 ${MAX_QUESTION_LENGTH}자를 초과할 수 없습니다.`, 400);
     }
 
-    const name = rawName ? rawName.slice(0, MAX_NAME_LENGTH) : null;
+    // name 컬럼은 NOT NULL 이므로 익명(미입력) 시 null 대신 빈 문자열로 저장한다.
+    const name = rawName ? rawName.slice(0, MAX_NAME_LENGTH) : "";
     const contact = rawContact.slice(0, MAX_CONTACT_LENGTH);
 
     const userIp =
