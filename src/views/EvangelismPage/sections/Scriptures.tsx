@@ -15,6 +15,11 @@ const Chips = styled.div`
   gap: 8px;
   flex-wrap: wrap;
   margin: 2px 0 22px;
+
+  @media (max-width: 720px) {
+    gap: 6px;
+    margin-bottom: 14px;
+  }
 `;
 
 const Chip = styled.button<{ active: boolean }>`
@@ -36,6 +41,11 @@ const Chip = styled.button<{ active: boolean }>`
   &:hover {
     border-color: #9eb6a3;
   }
+
+  @media (max-width: 720px) {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
 `;
 
 const Cards = styled.div`
@@ -45,6 +55,7 @@ const Cards = styled.div`
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 `;
 
@@ -82,6 +93,28 @@ const Card = styled.article`
     color: ${C.muted};
     font-weight: 700;
     letter-spacing: 0.01em;
+  }
+
+  /* 모바일: 단일 컬럼으로 카드가 세로로 길게 쌓이므로
+     여백·폰트·줄간격을 줄여 전체 길이를 압축하고 밸런스를 맞춘다. */
+  @media (max-width: 720px) {
+    border-radius: 14px;
+    padding: 15px 16px;
+    gap: 10px;
+
+    .topic {
+      padding: 4px 9px;
+      font-size: 10px;
+    }
+
+    .verse {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    cite {
+      font-size: 11px;
+    }
   }
 `;
 

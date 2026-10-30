@@ -700,11 +700,11 @@ export const TABS: TabMeta[] = [
   { key: "why", label: "우리가 전도하는 이유" },
   { key: "gospel", label: "복음 이야기" },
   { key: "scripture", label: "말씀 추천" },
-  { key: "qna", label: "질문하기" },
   { key: "songs", label: "찬양 추천" },
   { key: "cgn", label: "CGN 영상" },
   { key: "church", label: "교회 찾기" },
   { key: "hurray", label: "허뤠이 소개" },
+  { key: "qna", label: "질문하기" },
 ];
 
 export const DEFAULT_TAB: TabKey = "explore";
@@ -741,12 +741,6 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     desc: "지금 마음에 가까운 주제를 골라 말씀 만나기",
   },
   {
-    tab: "qna",
-    icon: "💬",
-    title: "질문과 답변",
-    desc: "하나님·신앙·교회에 관해 편하게 물어보세요",
-  },
-  {
     tab: "songs",
     icon: "🎧",
     title: "찬양 추천",
@@ -763,5 +757,11 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     icon: "📍",
     title: "가까운 온누리교회 찾아보기",
     desc: "가까운 캠퍼스 위치와 예배 안내 확인",
+  },
+  {
+    tab: "qna",
+    icon: "💬",
+    title: "질문과 답변",
+    desc: "하나님·신앙·교회에 관해 편하게 물어보세요",
   },
 ];

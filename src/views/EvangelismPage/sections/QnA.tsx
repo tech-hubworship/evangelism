@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { C, Section, Wrap, SectionHead, Kicker, H2, Panel, Tag } from "../styles";
 
@@ -69,6 +69,12 @@ const TextArea = styled.textarea`
     outline: 2px solid #a8c1ab;
     outline-offset: 1px;
   }
+
+  &:disabled {
+    background: #f3f4f2;
+    color: #9aa39b;
+    cursor: not-allowed;
+  }
 `;
 
 const StatusBox = styled.div<{ tone: "ok" | "err" }>`
@@ -89,7 +95,127 @@ const Label = styled.label`
     color: ${C.muted};
     font-weight: 400;
   }
+
+  .req {
+    font-size: 12px;
+    color: ${C.green2};
+    font-weight: 700;
+  }
 `;
+
+// --- 공개 Q&A(다른 분들이 남긴 질문과 답변) ---
+const AnsweredWrap = styled.div`
+  margin-top: 34px;
+`;
+
+const AnsweredHead = styled.div`
+  margin-bottom: 14px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    color: ${C.ink};
+  }
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: ${C.muted};
+  }
+`;
+
+const QaList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const QaCard = styled.div`
+  border: 1px solid ${C.line};
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+`;
+
+const QaItem = styled.div`
+  padding: 15px 16px;
+
+  & + & {
+    border-top: 1px solid ${C.line};
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+
+  .badge {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .badge.q {
+    background: ${C.sage};
+    color: ${C.green2};
+  }
+  .badge.a {
+    background: ${C.green};
+    color: #fff;
+  }
+
+  .text {
+    flex: 1 1 auto;
+    font-size: 14px;
+    line-height: 1.65;
+    color: ${C.ink};
+    white-space: pre-line;
+    word-break: keep-all;
+  }
+
+  &.answer {
+    background: #f6f9f5;
+  }
+  &.answer .text {
+    color: #2b3d31;
+  }
+
+  .date {
+    margin-top: 8px;
+    font-size: 12px;
+    color: ${C.muted};
+  }
+`;
+
+const EmptyNote = styled.div`
+  padding: 18px 16px;
+  border: 1px dashed ${C.line};
+  border-radius: 16px;
+  font-size: 13px;
+  color: ${C.muted};
+  text-align: center;
+`;
+
+interface AnsweredQa {
+  id: string | number;
+  question: string;
+  answer: string;
+  answeredAt: string | null;
+}
+
+function formatDate(value: string | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(
+    d.getDate()
+  ).padStart(2, "0")}`;
+}
 
 export default function QnA() {
   const [name, setName] = useState("");
@@ -100,8 +226,36 @@ export default function QnA() {
     null
   );
 
+  const [answered, setAnswered] = useState<AnsweredQa[]>([]);
+  const [answeredLoading, setAnsweredLoading] = useState(true);
+
+  // 연락처가 비어 있으면 질문 자체를 작성/전송할 수 없다.
+  const contactMissing = !contact.trim();
+
+  const loadAnswered = useCallback(async () => {
+    try {
+      const res = await fetch("/api/evangelism/questions", { method: "GET" });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.items)) {
+        setAnswered(data.items as AnsweredQa[]);
+      }
+    } catch {
+      // 공개 목록은 실패해도 폼 사용에는 영향 없음 — 조용히 넘어간다.
+    } finally {
+      setAnsweredLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAnswered();
+  }, [loadAnswered]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!contact.trim()) {
+      setResult({ tone: "err", msg: "답변 받을 연락처를 먼저 입력해주세요." });
+      return;
+    }
     if (!question.trim()) {
       setResult({ tone: "err", msg: "질문 내용을 입력해주세요." });
       return;
@@ -165,8 +319,8 @@ export default function QnA() {
               기도하겠습니다.
             </p>
             <p>
-              답변을 받고 싶으시면 연락처를 남겨주세요. 남겨주신 연락처로 저희가
-              정성껏 답해 드릴게요. (연락처 없이 익명으로 남기셔도 괜찮습니다.)
+              답변을 드릴 수 있도록 연락처를 꼭 남겨주세요. 남겨주신 연락처로
+              저희가 정성껏 답해 드릴게요. 이름은 익명으로 두셔도 괜찮습니다.
             </p>
           </Panel>
 
@@ -185,7 +339,7 @@ export default function QnA() {
 
               <Label htmlFor="ev-contact">
                 <strong>답변 받을 연락처</strong>{" "}
-                <span className="opt">(선택 · 남겨주시면 답변드려요)</span>
+                <span className="req">(필수 · 답변드릴 방법이에요)</span>
               </Label>
               <Field
                 id="ev-contact"
@@ -193,6 +347,8 @@ export default function QnA() {
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 placeholder="이메일 · 카카오톡 ID · 전화번호 등 편한 방법으로"
+                required
+                aria-required="true"
               />
 
               <Label htmlFor="ev-question">
@@ -203,11 +359,22 @@ export default function QnA() {
                 maxLength={3000}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="궁금한 점을 자유롭게 적어주세요."
+                placeholder={
+                  contactMissing
+                    ? "답변 받을 연락처를 먼저 입력해주세요."
+                    : "궁금한 점을 자유롭게 적어주세요."
+                }
                 required
+                disabled={contactMissing}
+                aria-disabled={contactMissing}
+                title={
+                  contactMissing
+                    ? "답변 받을 연락처를 먼저 입력해주세요."
+                    : undefined
+                }
               />
 
-              <SubmitBtn type="submit" disabled={submitting}>
+              <SubmitBtn type="submit" disabled={submitting || contactMissing}>
                 {submitting ? "전송 중..." : "질문 보내기"}
               </SubmitBtn>
 
@@ -219,6 +386,51 @@ export default function QnA() {
             </form>
           </Panel>
         </Split>
+
+        <AnsweredWrap>
+          <AnsweredHead>
+            <h3>다른 분들이 남긴 질문과 답변</h3>
+            <p>
+              먼저 질문을 남겨주신 분들께 드린 답변이에요. 비슷한 고민이 있다면
+              참고해 보세요. (개인정보 보호를 위해 이름·연락처는 공개하지
+              않습니다.)
+            </p>
+          </AnsweredHead>
+
+          {answeredLoading ? (
+            <EmptyNote>답변을 불러오는 중이에요…</EmptyNote>
+          ) : answered.length === 0 ? (
+            <EmptyNote>
+              아직 공개된 답변이 없어요. 첫 번째 질문을 남겨주세요.
+            </EmptyNote>
+          ) : (
+            <QaList>
+              {answered.map((qa) => (
+                <QaCard key={qa.id}>
+                  <QaItem>
+                    <div className="row">
+                      <span className="badge q" aria-hidden>
+                        Q
+                      </span>
+                      <div className="text">{qa.question}</div>
+                    </div>
+                  </QaItem>
+                  <QaItem className="answer">
+                    <div className="row">
+                      <span className="badge a" aria-hidden>
+                        A
+                      </span>
+                      <div className="text">{qa.answer}</div>
+                    </div>
+                    {formatDate(qa.answeredAt) && (
+                      <div className="date">{formatDate(qa.answeredAt)} 답변</div>
+                    )}
+                  </QaItem>
+                </QaCard>
+              ))}
+            </QaList>
+          )}
+        </AnsweredWrap>
       </Wrap>
     </Section>
   );

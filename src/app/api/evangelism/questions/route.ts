@@ -9,6 +9,9 @@ const MAX_NAME_LENGTH = 60;
 const MAX_CONTACT_LENGTH = 200;
 const DUPLICATE_WINDOW_MINUTES = 3;
 
+/** 공개 답변 목록에서 한 번에 내려줄 최대 개수 */
+const PUBLIC_ANSWERED_LIMIT = 50;
+
 /**
  * 전도 페이지 질문 접수 API.
  *
@@ -23,18 +26,22 @@ export async function POST(req: Request) {
     const rawName = typeof body.name === "string" ? body.name.trim() : "";
     const rawContact = typeof body.contact === "string" ? body.contact.trim() : "";
 
+    // 연락처가 없으면 답변을 전달할 방법이 없으므로 질문 자체를 받지 않는다.
+    if (!rawContact) {
+      return jsonError("답변 받을 연락처를 입력해주세요.", 400);
+    }
+    if (rawContact.length > MAX_CONTACT_LENGTH) {
+      return jsonError(`연락처는 ${MAX_CONTACT_LENGTH}자를 초과할 수 없습니다.`, 400);
+    }
     if (!rawQuestion) {
       return jsonError("질문 내용을 입력해주세요.", 400);
     }
     if (rawQuestion.length > MAX_QUESTION_LENGTH) {
       return jsonError(`질문은 ${MAX_QUESTION_LENGTH}자를 초과할 수 없습니다.`, 400);
     }
-    if (rawContact.length > MAX_CONTACT_LENGTH) {
-      return jsonError(`연락처는 ${MAX_CONTACT_LENGTH}자를 초과할 수 없습니다.`, 400);
-    }
 
     const name = rawName ? rawName.slice(0, MAX_NAME_LENGTH) : null;
-    const contact = rawContact ? rawContact.slice(0, MAX_CONTACT_LENGTH) : null;
+    const contact = rawContact.slice(0, MAX_CONTACT_LENGTH);
 
     const userIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -94,18 +101,52 @@ export async function POST(req: Request) {
   }
 }
 
-export function GET() {
-  return methodNotAllowed(["POST"]);
+/**
+ * 공개 Q&A 목록.
+ *
+ * 관리자(hub_web)에서 답변을 작성해 status 가 "answered" 가 된 질문만 노출한다.
+ * 개인정보 보호를 위해 contact 는 절대 내려주지 않으며, 이름도 생략한다.
+ * (익명으로 다른 방문자들이 "어떤 질문에 어떻게 답했는지" 를 볼 수 있게 하는 용도)
+ */
+export async function GET() {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("evangelism_questions")
+      .select("id, question, answer, answered_at, created_at")
+      .eq("status", "answered")
+      .not("answer", "is", null)
+      .order("answered_at", { ascending: false })
+      .limit(PUBLIC_ANSWERED_LIMIT);
+
+    if (error) {
+      console.error("공개 Q&A 조회 오류:", error);
+      return jsonError("답변 목록을 불러오지 못했습니다.", 500);
+    }
+
+    const items = (data ?? [])
+      .filter((row) => typeof row.answer === "string" && row.answer.trim())
+      .map((row) => ({
+        id: row.id,
+        question: row.question,
+        answer: row.answer,
+        answeredAt: row.answered_at ?? row.created_at ?? null,
+      }));
+
+    return jsonOk({ items });
+  } catch (error) {
+    console.error("Evangelism Public Q&A API Error:", error);
+    return jsonError("서버 오류가 발생했습니다.", 500);
+  }
 }
 
 export function PUT() {
-  return methodNotAllowed(["POST"]);
+  return methodNotAllowed(["GET", "POST"]);
 }
 
 export function PATCH() {
-  return methodNotAllowed(["POST"]);
+  return methodNotAllowed(["GET", "POST"]);
 }
 
 export function DELETE() {
-  return methodNotAllowed(["POST"]);
+  return methodNotAllowed(["GET", "POST"]);
 }
