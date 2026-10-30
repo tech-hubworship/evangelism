@@ -4,17 +4,40 @@
 //  - 복음 카드(사영리) 8단계 / 찬양 추천 / 온누리 캠퍼스 목록
 // =============================================================
 
+/** 복음 카드에 쓰는 심볼 (전도 소책자의 아이콘을 인라인 SVG로 표현) */
+export type GospelSymbol =
+  | "compass" // 도입: 두 갈래 화살표(시간/선택)
+  | "heart" // 창조: 온전한 하트
+  | "heart-broken" // 죄: 갈라진 하트
+  | "cross-heart" // 사랑: 십자가 + 하트
+  | "gift-double" // 구원: 두 개의 선물 + 십자가
+  | "gift" // 평안과 영생: 하나의 선물
+  | "door" // 초대: 문 열린 집
+  | "heart-mending" // 기도: 다시 이어지는 하트
+  | "heart-filled"; // 새로운 시작: 가득 찬 하트
+
+/** 소책자에 인쇄된 말씀 (라벨 + 전문) */
+export interface GospelVerse {
+  /** 출처 라벨 (예: 창세기 1장 27절) */
+  ref: string;
+  /** 말씀 본문 */
+  text: string;
+}
+
 /** 복음 카드 한 단계 */
 export interface GospelStep {
   no: string;
   tag: string;
-  /** public/evangelism/step-0X.png */
-  image: string;
+  /** 단계 심볼 (인라인 SVG로 렌더) */
+  symbol: GospelSymbol;
+  /** 제목(소책자의 큰 문장) */
   title: string;
   /** 본문 단락(여러 줄) */
   body: string[];
-  /** 관련 말씀 구절 라벨 */
-  verses: string[];
+  /** 강조 라벨 (예: 결과 : 불안, 두려움 / 사망) */
+  highlight?: string;
+  /** 관련 말씀 (라벨 + 전문) */
+  verses: GospelVerse[];
   /** 마지막 단계에서 노출할 선택적 링크 (해당 탭으로 이동) */
   link?: { label: string; tab: TabKey };
 }
@@ -22,83 +45,133 @@ export interface GospelStep {
 export const GOSPEL_STEPS: GospelStep[] = [
   {
     no: "01",
-    tag: "창조",
-    image: "/evangelism/step-01.png",
-    title: "사람은 본래 행복하게 창조되었습니다",
-    body: ["사람은 본래 하나님과 교제하며 행복하게 살도록 창조되었습니다."],
-    verses: ["창세기 1장 27절"],
+    tag: "질문",
+    symbol: "compass",
+    title: "당신은 언제 가장 행복하다고 생각하십니까?",
+    body: ["그 행복한 시간이 영원하다고 생각하시나요?"],
+    verses: [],
   },
   {
     no: "02",
-    tag: "죄",
-    image: "/evangelism/step-02.png",
-    title: "그러나 사람은 하나님을 떠났습니다",
-    body: [
-      "하나님께 불순종하여 죄를 지었고 하나님을 떠나게 되었습니다.",
-      "결과: 불안, 두려움, 사망",
+    tag: "창조",
+    symbol: "heart",
+    title: "사람은 본래 하나님과 교제하며 행복하게 살도록 창조되었습니다.",
+    body: [],
+    verses: [
+      {
+        ref: "창세기 1장 27절",
+        text: "하나님이 자기 형상 곧 하나님의 형상대로 사람을 창조하시되…",
+      },
     ],
-    verses: ["로마서 3장 23절", "로마서 6장 23절"],
   },
   {
     no: "03",
-    tag: "사랑",
-    image: "/evangelism/step-03.png",
-    title: "하나님께서 예수님을 보내셨습니다",
-    body: [
-      "하나님께서는 사람들을 불쌍히 여기시고 예수 그리스도를 대속물로 이 땅에 보내셨습니다.",
+    tag: "죄",
+    symbol: "heart-broken",
+    title:
+      "그런데 사람이 하나님께 불순종하므로 죄를 지었고 하나님을 떠나게 되었습니다.",
+    body: [],
+    highlight: "결과 : 불안, 두려움 / 사망",
+    verses: [
+      {
+        ref: "로마서 3장 23절",
+        text: "모든 사람이 죄를 범하였으매 하나님의 영광에 이르지 못하더니",
+      },
+      {
+        ref: "로마서 6장 23절",
+        text: "죄의 삯은 사망이요…",
+      },
     ],
-    verses: ["요한일서 4장 8절", "마가복음 10장 45절"],
   },
   {
     no: "04",
-    tag: "구원",
-    image: "/evangelism/step-04.png",
-    title: "예수님은 죽으시고 부활하셨습니다",
-    body: [
-      "예수님께서는 우리의 모든 죄 값을 치르기 위해 십자가에서 죽으시고 삼 일 만에 부활하셨습니다.",
-      "하나님께서는 우리에게 평안과 영생을 선물로 주시기 원하십니다.",
+    tag: "사랑",
+    symbol: "cross-heart",
+    title:
+      "하나님께서는 사람들의 이런 모습을 불쌍히 여기시고 예수 그리스도를 대속물로 이 땅에 보내셨습니다.",
+    body: [],
+    verses: [
+      { ref: "요한일서 4장 8절", text: "하나님은 사랑이심이라" },
+      {
+        ref: "마가복음 10장 45절",
+        text: "인자가 온 것은 섬김을 받으려 함이 아니라 도리어 섬기려 하고 자기 목숨을 많은 사람의 대속물로 주려 함이니라",
+      },
     ],
-    verses: ["요한복음 14장 27절", "요한복음 10장 10절"],
   },
   {
     no: "05",
+    tag: "구원",
+    symbol: "gift-double",
+    title:
+      "예수님께서는 우리의 모든 죄 값을 치르기 위해 십자가에서 죽으시고 삼일 만에 부활하셨습니다.",
+    body: ["그리고 우리에게 두 가지 선물을 주시기 원하십니다."],
+    highlight: "선물 : 평안 / 영생",
+    verses: [
+      {
+        ref: "요한복음 14장 27절",
+        text: "평안을 너희에게 끼치노니 곧 나의 평안을 너희에게 주노라 내가 너희에게 주는 것은 세상이 주는 것과 같지 아니하니라 너희는 마음에 근심하지도 말고 두려워하지도 말라",
+      },
+      {
+        ref: "요한복음 10장 10절",
+        text: "내가 온 것은 양으로 생명을 얻게 하고 더 풍성히 얻게 하려는 것이라",
+      },
+    ],
+  },
+  {
+    no: "06",
     tag: "평안과 영생",
-    image: "/evangelism/step-05.png",
+    symbol: "gift",
     title: "당신은 참 평안과 영생을 받고 싶지 않으십니까?",
     body: [
       "하나님께서는 지금 이 시간 당신이 예수님을 영접하여 참 평안과 영생을 받기 원하십니다.",
     ],
-    verses: ["요한복음 3장 16절", "요한복음 1장 12절"],
-  },
-  {
-    no: "06",
-    tag: "초대",
-    image: "/evangelism/step-06.png",
-    title: "예수님을 영접하도록 초대하십니다",
-    body: [
-      "지금 예수님께서는 당신의 마음 문을 두드리고 계십니다. 예수님을 영접하여 참 평안과 영생을 얻으시겠습니까?",
+    verses: [
+      {
+        ref: "요한복음 3장 16절",
+        text: "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라",
+      },
+      {
+        ref: "요한복음 1장 12절",
+        text: "영접하는 자 곧 그 이름을 믿는 자들에게는 하나님의 자녀가 되는 권세를 주셨으니",
+      },
     ],
-    verses: ["요한계시록 3장 20절"],
   },
   {
     no: "07",
-    tag: "기도",
-    image: "/evangelism/step-07.png",
-    title: "이렇게 기도할 수 있습니다",
+    tag: "초대",
+    symbol: "door",
+    title: "지금 예수님께서는 당신의 마음 문을 두드리고 계십니다.",
     body: [
-      "하나님 아버지, 저는 죄인입니다. 저의 죄를 회개하오니 용서하여 주십시오. 예수님께서 저의 죄 때문에 십자가에서 죽으시고 부활하신 것을 믿습니다. 지금 이 시간 제 마음에 들어오셔서 저의 구원자와 주님이 되어 주십시오. 예수님의 이름으로 기도합니다. 아멘.",
+      "이제 당신은 선택하셔야 합니다. 죄악 된 세상에서 불안과 두려움 가운데 살다가 죽은 이후에 지옥에서 영원히 고통을 당할 것인지, 아니면 예수님을 영접하여 참 평안과 영생을 얻을 것인지…",
+      "당신은 예수님을 영접하시겠습니까?",
+    ],
+    verses: [
+      {
+        ref: "요한계시록 3장 20절",
+        text: "볼지어다 내가 문 밖에 서서 두드리노니 누구든지 내 음성을 듣고 문을 열면 내가 그에게로 들어가 그와 더불어 먹고 그는 나와 더불어 먹으리라",
+      },
+    ],
+  },
+  {
+    no: "08",
+    tag: "기도",
+    symbol: "heart-mending",
+    title: "참으로 중요한 결정을 하셨습니다. 이렇게 기도해 주십시오.",
+    body: [
+      "하나님 아버지, 저는 죄인입니다. 저의 죄를 회개하오니 용서하여 주십시오. 예수님께서 저의 죄 때문에 십자가에서 죽으시고 부활하신 것을 믿습니다. 지금 이 시간 제 마음에 들어오셔서 저의 구원자와 주님이 되어 주십시오. 예수님의 이름으로 기도합니다.",
+      "아멘.",
     ],
     verses: [],
   },
   {
-    no: "08",
+    no: "09",
     tag: "새로운 시작",
-    image: "/evangelism/step-08.png",
-    title: "하나님의 자녀가 되었습니다",
+    symbol: "heart-filled",
+    title: "당신은 지금 예수님을 영접하여 하나님의 자녀가 되었습니다.",
     body: [
-      "예수님을 영접하여 하나님의 자녀가 되었습니다. 가까운 교회에 나가 하나님의 말씀을 듣고 기도하며 하나님과 함께 행복한 삶을 누리세요.",
+      "가까운 교회에 나가셔서 하나님의 말씀을 듣고 기도하며 하나님과 함께 행복한 삶을 누리십시오.",
     ],
-    verses: ["요한복음 3장 16절", "요한복음 1장 12절"],
+    verses: [],
     link: { label: "가까운 온누리교회 찾아보기", tab: "church" },
   },
 ];
@@ -340,7 +413,7 @@ export const SONGS: Record<SongMood, Song[]> = {
     { title: "평안을 너에게 주노라", artist: "지나", youtubeID: "0hUOwMlq940" },
     { title: "무너짐 가운데서", artist: "WELOVE", youtubeID: "BEXi88t6Nao" },
     { title: "함께 계셨네", artist: "웨이홈", youtubeID: "p4HJckWAHBY" },
-    { title: "하나님은 너를 지키시는 자", artist: "Wayhome", youtubeID: "wYkhLEAqhBs" },
+    { title: "하나님은 너를 지키시는 자", artist: "웨이홈", youtubeID: "wYkhLEAqhBs" },
     { title: "내 이름 아시죠", artist: "J-US", youtubeID: "7w3dvCQ3m1I" },
     { title: "주의 자녀로 산다는 것은", artist: "Gifted", youtubeID: "TKSS0P4H2zQ" },
     { title: "성령이 오셨네", artist: "김도현", youtubeID: "cSeoTN9ztRk" },
@@ -356,16 +429,16 @@ export const SONGS: Record<SongMood, Song[]> = {
     { title: "주가 지으신 이 날에", artist: "어노인팅", youtubeID: "FkpbYaNiU8Y" },
     { title: "We Praise You", artist: "Bethel Music & Brandon Lake", youtubeID: "vVVXeKCg9w4" },
     { title: "Washed", artist: "Elevation Rhythm", youtubeID: "JjgkhHlTROQ" },
-    { title: "Goodbye Yesterday", artist: "Elevation Worship", youtubeID: "qOD9M95_fS0" },
+    { title: "Goodbye Yesterday", artist: "Elevation Rhythm", youtubeID: "qOD9M95_fS0" },
     { title: "내힘이 되신", artist: "Histigma", youtubeID: "EX03xrCwkyk" },
     { title: "Need You, Lord!", artist: "Hisplan", youtubeID: "kaaKrquxAN0" },
     { title: "두려움 떠나네", artist: "아갓유", youtubeID: "OMLkqmilEgo" },
-    { title: "I Thank God", artist: "Elevation Worship", youtubeID: "LM1qrx0Huds" },
+    { title: "I Thank God", artist: "Maverick City Music & UPPERROOM", youtubeID: "LM1qrx0Huds" },
     { title: "Here Again", artist: "Elevation Worship", youtubeID: "zfLcdBuB7NY" },
     { title: "Confidence", artist: "Sanctus Real", youtubeID: "KA9kSBv1QrI" },
     { title: "전신갑주", artist: "아이자야식스티원", youtubeID: "17Qykmf8oS4" },
-    { title: "불을 내려주소서", artist: "천관웅", youtubeID: "DO1LCn6mRXE" },
-    { title: "태산을 넘어 험곡에 가도", artist: "아이자야식스티원", youtubeID: "xZVKbIrOqhI" }
+    { title: "불을 내려주소서", artist: "천관웅", youtubeID: "V3B3ZtPeP28" },
+    { title: "태산을 넘어 험곡에 가도", artist: "아이자야식스티원", youtubeID: "rXAzWsvjgNQ" }
   ],
   "curious": [
     { title: "하나님의 세계", artist: "예람워십", youtubeID: "AMMSKHJC8OU" },
@@ -385,10 +458,10 @@ export const SONGS: Record<SongMood, Song[]> = {
     { title: "사랑은 여전히 사랑이어서", artist: "한웅재", youtubeID: "-p8O4ENLc0I" },
     { title: "예수 사랑하심은", artist: "아이자야식스티원", youtubeID: "A_drAemgpYc" },
     { title: "하나님께서 세상을 사랑하사", artist: "어노인팅", youtubeID: "-n24d45myCg" },
-    { title: "그 크신 하나님의 사랑", artist: "제이어스", youtubeID: "TKWMHZSSt-w" },
+    { title: "그 크신 하나님의 사랑", artist: "제이어스", youtubeID: "sENQ-cJK4AQ" },
     { title: "진리", artist: "어노인팅", youtubeID: "602e5ZZokl0" },
     { title: "Washed", artist: "Elevation Rhythm", youtubeID: "JjgkhHlTROQ" },
-    { title: "주님의 선하심", artist: "기프티드", youtubeID: "f0PASE89D6E" },
+    { title: "주님의 선하심", artist: "기프티드", youtubeID: "ErqijpGQmO4" },
     { title: "사랑중에 사랑", artist: "WELOVE", youtubeID: "GDoarJJezi0" },
     { title: "은혜", artist: "손경민", youtubeID: "pZuW2CV0mXY" },
     { title: "소원", artist: "한웅재", youtubeID: "-B3w7mjRK6I" }

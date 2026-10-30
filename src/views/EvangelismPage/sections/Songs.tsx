@@ -372,8 +372,11 @@ export default function Songs() {
 
   const list = SONGS[mood];
   const theme = SONG_THEMES[mood];
-  const current = list[index];
-  const canEmbed = Boolean(current.youtubeID);
+  // 무드가 바뀌면 리스트 길이가 달라져 이전 index가 범위를 벗어날 수 있다.
+  // (예: love 12곡 → curious 10곡) 렌더 중 안전하게 클램프해 크래시 방지.
+  const safeIndex = Math.min(index, list.length - 1);
+  const current = list[safeIndex];
+  const canEmbed = Boolean(current?.youtubeID);
 
   // 무드 바뀌면 큐 처음부터 + 재생 중지
   const prevMood = useRef(mood);
@@ -388,7 +391,8 @@ export default function Songs() {
   // 곡 이동: 대상 곡에 ID가 있으면 바로 재생 유지(없으면 멈춤 상태)
   const go = (dir: number) => {
     setIndex((i) => {
-      const next = (i + dir + list.length) % list.length;
+      const base = Math.min(i, list.length - 1);
+      const next = (base + dir + list.length) % list.length;
       setPlaying(Boolean(list[next].youtubeID));
       return next;
     });
@@ -464,7 +468,7 @@ export default function Songs() {
               <span>{current.artist}</span>
             </TrackTitle>
             <Counter>
-              {index + 1} / {list.length} ·{" "}
+              {safeIndex + 1} / {list.length} ·{" "}
               {SONG_MOODS.find((m) => m.key === mood)?.label}
             </Counter>
 
@@ -511,7 +515,7 @@ export default function Songs() {
             </QueueHead>
             <QueueList>
               {list.map((song, i) => {
-                const active = i === index;
+                const active = i === safeIndex;
                 return (
                   <QueueItem
                     key={`${song.title}-${i}`}

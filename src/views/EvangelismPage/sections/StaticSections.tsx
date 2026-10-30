@@ -93,6 +93,71 @@ const WelcomePanel = styled(Panel)`
   }
 `;
 
+// "무엇이 궁금하신가요?" 주제 그리드 (둘러보기 탭 + 모든 탭 하단에서 재사용)
+export function ExploreGrid({
+  onSelectTab,
+  activeTab,
+}: {
+  onSelectTab: (tab: TabKey) => void;
+  /** 현재 탭 — 해당 항목은 그리드에서 숨겨 중복 이동을 피함(선택 사항) */
+  activeTab?: TabKey;
+}) {
+  const items = EXPLORE_ITEMS.filter((item) => item.tab !== activeTab);
+  return (
+    <>
+      <SectionHead>
+        <div>
+          <Kicker>EXPLORE</Kicker>
+          <H2>무엇이 궁금하신가요?</H2>
+        </div>
+        <p>원하는 주제를 골라 살펴보세요.</p>
+      </SectionHead>
+      <ExploreList>
+        {items.map((item) => (
+          <ExploreRow
+            key={item.tab}
+            type="button"
+            onClick={() => onSelectTab(item.tab)}
+          >
+            <span className="ico" aria-hidden>
+              {item.icon}
+            </span>
+            <span className="meta">
+              <strong>{item.title}</strong>
+              <span className="desc">{item.desc}</span>
+            </span>
+            <span className="chev" aria-hidden>
+              →
+            </span>
+          </ExploreRow>
+        ))}
+      </ExploreList>
+    </>
+  );
+}
+
+// 모든 탭 하단에 붙는 "무엇이 궁금하신가요?" 섹션 (상단 구분선 포함)
+const ExploreMoreSection = styled(Section)`
+  border-top: 1px solid ${C.line};
+  margin-top: 8px;
+`;
+
+export function ExploreMore({
+  onSelectTab,
+  activeTab,
+}: {
+  onSelectTab: (tab: TabKey) => void;
+  activeTab?: TabKey;
+}) {
+  return (
+    <ExploreMoreSection>
+      <Wrap>
+        <ExploreGrid onSelectTab={onSelectTab} activeTab={activeTab} />
+      </Wrap>
+    </ExploreMoreSection>
+  );
+}
+
 export function Explore({
   onSelectTab,
 }: {
@@ -114,33 +179,7 @@ export function Explore({
           <p>오늘은 편하게 구경만 하고 가셔도 좋습니다. 감사합니다.</p>
         </WelcomePanel>
 
-        <SectionHead>
-          <div>
-            <Kicker>EXPLORE</Kicker>
-            <H2>무엇이 궁금하신가요?</H2>
-          </div>
-          <p>원하는 주제를 골라 살펴보세요.</p>
-        </SectionHead>
-        <ExploreList>
-          {EXPLORE_ITEMS.map((item) => (
-            <ExploreRow
-              key={item.tab}
-              type="button"
-              onClick={() => onSelectTab(item.tab)}
-            >
-              <span className="ico" aria-hidden>
-                {item.icon}
-              </span>
-              <span className="meta">
-                <strong>{item.title}</strong>
-                <span className="desc">{item.desc}</span>
-              </span>
-              <span className="chev" aria-hidden>
-                →
-              </span>
-            </ExploreRow>
-          ))}
-        </ExploreList>
+        <ExploreGrid onSelectTab={onSelectTab} />
       </Wrap>
     </Section>
   );

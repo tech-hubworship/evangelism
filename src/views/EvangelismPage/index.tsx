@@ -11,6 +11,7 @@ import QnA from "./sections/QnA";
 import ChurchFinder from "./sections/ChurchFinder";
 import {
   Explore,
+  ExploreMore,
   Why,
   CgnVideos,
   HurrayTeam,
@@ -302,6 +303,11 @@ export default function EvangelismPage() {
         </TabBarOuter>
 
         <TabPanel tab={activeTab} onSelectTab={selectTab} />
+
+        {/* 둘러보기 탭 외 모든 탭 하단에 "무엇이 궁금하신가요?" 그리드 노출 */}
+        {activeTab !== "explore" && (
+          <ExploreMore onSelectTab={selectTab} activeTab={activeTab} />
+        )}
       </Page>
       <EvangelismFooter />
 
