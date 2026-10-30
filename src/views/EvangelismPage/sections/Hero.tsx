@@ -87,6 +87,7 @@ const HeroCopy = styled.div`
     max-width: 560px;
     color: #e0e9e1;
     margin: 0 0 28px;
+    word-break: keep-all;
   }
 
   @media (max-width: 768px) {
@@ -133,6 +134,8 @@ const VerseBadge = styled.aside`
     font-size: clamp(14px, 1.35vw, 17px);
     line-height: 1.65;
     letter-spacing: -0.035em;
+    white-space: pre-line;
+    word-break: keep-all;
   }
   cite {
     font-size: 12px;
@@ -232,8 +235,14 @@ export default function Hero({
             당신을 사랑하십니다
           </h1>
           <p>
-            하나님에 대해 궁금했던 이야기, 누군가에게 묻기 어려웠던 질문들. 이곳에서
-            천천히 알아가며, 마음 편히 쉬어 가세요.
+            하나님에 대해 궁금했던 이야기,
+            <br />
+            누군가에게 묻기 어려웠던 질문들.
+            <br />
+            <br />
+            이곳에서 천천히 알아가며
+            <br />
+            마음 편히 쉬어 가세요.
           </p>
           <HeroButton type="button" onClick={() => onSelectTab("explore")}>
             천천히 둘러보기 <span>↘</span>

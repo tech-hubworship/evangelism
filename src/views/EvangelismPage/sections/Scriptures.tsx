@@ -72,9 +72,8 @@ const Card = styled.article`
     color: ${C.ink};
     font-size: clamp(15px, 1.6vw, 17px);
     line-height: 1.85;
-  }
-  .verse span {
-    display: block;
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
 
   cite {
@@ -149,11 +148,7 @@ export default function Scriptures() {
             {list.map((s, i) => (
               <Card key={`${s.ref}-${i}`}>
                 <span className="topic">{labelOf(s.topic)}</span>
-                <blockquote className="verse">
-                  {s.lines.map((line, j) => (
-                    <span key={j}>{line}</span>
-                  ))}
-                </blockquote>
+                <blockquote className="verse">{s.lines.join(" ")}</blockquote>
                 <cite>{s.ref}</cite>
               </Card>
             ))}
