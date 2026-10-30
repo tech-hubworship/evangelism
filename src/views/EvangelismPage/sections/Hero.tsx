@@ -196,6 +196,8 @@ export default function Hero({
 }) {
   // 썸네일 말씀 자동 회전 (기본 20초 간격)
   const [verseIdx, setVerseIdx] = useState(0);
+  // 수동 선택 시에도 타이머를 리셋하기 위한 트리거
+  const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
     if (HERO_VERSES.length <= 1) return;
@@ -203,7 +205,12 @@ export default function Hero({
       setVerseIdx((i) => (i + 1) % HERO_VERSES.length);
     }, HERO_VERSE_INTERVAL);
     return () => clearInterval(timer);
-  }, []);
+  }, [cycle]);
+
+  const pickVerse = (i: number) => {
+    setVerseIdx(i);
+    setCycle((c) => c + 1); // 타이머 재시작
+  };
 
   const verse = HERO_VERSES[verseIdx];
 
@@ -247,7 +254,7 @@ export default function Hero({
                   type="button"
                   aria-current={i === verseIdx}
                   aria-label={`${v.ref} 말씀 보기`}
-                  onClick={() => setVerseIdx(i)}
+                  onClick={() => pickVerse(i)}
                 />
               ))}
             </Dots>

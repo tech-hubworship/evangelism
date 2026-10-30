@@ -381,7 +381,7 @@ export const SONGS: Record<SongMood, Song[]> = {
   ],
   "love": [
     { title: "하나님의 사랑이", artist: "WELOVE", youtubeID: "fV69rb_MO3o" },
-    { title: "내 모습이대로", artist: "JUS", youtubeID: "7w3dvCQ3m1I" },
+    { title: "내 모습 이대로", artist: "J-US", youtubeID: "FV5nMb93UwY" },
     { title: "사랑은 여전히 사랑이어서", artist: "한웅재", youtubeID: "-p8O4ENLc0I" },
     { title: "예수 사랑하심은", artist: "아이자야식스티원", youtubeID: "A_drAemgpYc" },
     { title: "하나님께서 세상을 사랑하사", artist: "어노인팅", youtubeID: "-n24d45myCg" },
@@ -391,8 +391,7 @@ export const SONGS: Record<SongMood, Song[]> = {
     { title: "주님의 선하심", artist: "기프티드", youtubeID: "f0PASE89D6E" },
     { title: "사랑중에 사랑", artist: "WELOVE", youtubeID: "GDoarJJezi0" },
     { title: "은혜", artist: "손경민", youtubeID: "pZuW2CV0mXY" },
-    { title: "소원", artist: "한웅재", youtubeID: "-B3w7mjRK6I" },
-    { title: "예수사랑하심은", artist: "아이자야 식스티원", youtubeID: "A_drAemgpYc" }
+    { title: "소원", artist: "한웅재", youtubeID: "-B3w7mjRK6I" }
   ]
 }
 
