@@ -462,13 +462,14 @@ const Item = styled.article`
   p {
     margin: 0;
   }
-  ol {
-    padding-left: 18px;
+  ul {
+    list-style: none;
+    padding-left: 0;
     margin: 0;
   }
   li {
-    padding-left: 2px;
-    margin: 0 0 7px;
+    padding-left: 0;
+    margin: 0 0 6px;
   }
 
   @media (max-width: 850px) {
@@ -513,7 +514,7 @@ export function HurrayTeam() {
         <SectionHead>
           <div>
             <Kicker>MEET HURRAY</Kicker>
-            <H2>허뤠이 팀 소개</H2>
+            <H2>허뤠이 팀 소개 🙌</H2>
           </div>
           <p>복음의 기쁨을 세상에 자랑하자!</p>
         </SectionHead>
@@ -546,11 +547,11 @@ export function HurrayTeam() {
           <Item>
             <div className="label">OUR PURPOSE</div>
             <h3>팀 목적</h3>
-            <ol>
+            <ul>
               <li>세상에 흘려보내는 신앙인으로 살아가기</li>
               <li>복음 전파의 지상명령을 위해 꾸준히 훈련하기</li>
               <li>하나님이 찾으시는 한 영혼 발견하기</li>
-            </ol>
+            </ul>
           </Item>
         </Overview>
 

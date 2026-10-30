@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import type { TabKey } from "../data";
+import { HERO_VERSES, HERO_VERSE_INTERVAL } from "../data";
 import { C, Wrap } from "../styles";
 
 const Nav = styled.header`
@@ -139,6 +140,53 @@ const VerseBadge = styled.aside`
     color: #c8d9ca;
     font-weight: 700;
   }
+
+  /* 말씀이 바뀔 때 부드럽게 전환 */
+  .verse-fade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: verseIn 0.7s ease;
+  }
+
+  @keyframes verseIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .verse-fade {
+      animation: none;
+    }
+  }
+`;
+
+const Dots = styled.div`
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+
+  button {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #789488;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &[aria-current="true"] {
+      background: #e0e9e1;
+    }
+  }
 `;
 
 export default function Hero({
@@ -146,6 +194,19 @@ export default function Hero({
 }: {
   onSelectTab: (tab: TabKey) => void;
 }) {
+  // 썸네일 말씀 자동 회전 (기본 20초 간격)
+  const [verseIdx, setVerseIdx] = useState(0);
+
+  useEffect(() => {
+    if (HERO_VERSES.length <= 1) return;
+    const timer = setInterval(() => {
+      setVerseIdx((i) => (i + 1) % HERO_VERSES.length);
+    }, HERO_VERSE_INTERVAL);
+    return () => clearInterval(timer);
+  }, []);
+
+  const verse = HERO_VERSES[verseIdx];
+
   return (
     <Wrap>
       <Nav>
@@ -164,21 +225,33 @@ export default function Hero({
             당신을 사랑하십니다
           </h1>
           <p>
-            하나님에 대해 궁금했던 이야기, 누군가에게 묻기 어려웠던 질문들.
-            <br />
-            이곳에서 천천히 알아가며, 마음 편히 쉬어 가세요.
+            하나님에 대해 궁금했던 이야기, 누군가에게 묻기 어려웠던 질문들. 이곳에서
+            천천히 알아가며, 마음 편히 쉬어 가세요.
           </p>
           <HeroButton type="button" onClick={() => onSelectTab("explore")}>
             천천히 둘러보기 <span>↘</span>
           </HeroButton>
         </HeroCopy>
 
-        <VerseBadge aria-label="마태복음 11장 28절 말씀">
-          <div className="mark">“</div>
-          <blockquote>
-            수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라
-          </blockquote>
-          <cite>마태복음 11:28</cite>
+        <VerseBadge aria-label="오늘의 말씀" aria-live="polite">
+          <div className="verse-fade" key={verseIdx}>
+            <div className="mark">“</div>
+            <blockquote>{verse.text}</blockquote>
+            <cite>{verse.ref}</cite>
+          </div>
+          {HERO_VERSES.length > 1 && (
+            <Dots role="tablist" aria-label="말씀 선택">
+              {HERO_VERSES.map((v, i) => (
+                <button
+                  key={v.ref}
+                  type="button"
+                  aria-current={i === verseIdx}
+                  aria-label={`${v.ref} 말씀 보기`}
+                  onClick={() => setVerseIdx(i)}
+                />
+              ))}
+            </Dots>
+          )}
         </VerseBadge>
       </HeroBox>
     </Wrap>

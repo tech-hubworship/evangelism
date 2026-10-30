@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { GOSPEL_STEPS } from "../data";
 import type { TabKey } from "../data";
@@ -54,6 +54,8 @@ const Rail = styled.div`
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
+  /* 마지막 카드에서 더 스크롤되어 빈 공간이 보이거나 상위 스크롤로 넘어가지 않도록 */
+  overscroll-behavior-x: contain;
   padding: 4px 2px 14px;
   flex: 1;
   scrollbar-width: none;
@@ -67,6 +69,7 @@ const Card = styled.article`
   flex: 0 0 min(760px, 100%);
   min-height: 510px;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   box-sizing: border-box;
   padding: clamp(28px, 5vw, 58px);
   background: ${C.panel};
@@ -85,6 +88,7 @@ const Card = styled.article`
     line-height: 1.35;
     letter-spacing: -0.03em;
     margin: 10px 0 12px;
+    color: ${C.ink};
   }
 
   p {
@@ -136,10 +140,19 @@ const Arrow = styled.button`
   cursor: pointer;
   display: grid;
   place-items: center;
+  transition:
+    opacity 0.15s,
+    border-color 0.15s,
+    background 0.15s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: #9eb6a3;
     background: #f5f8f4;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
   }
 
   @media (max-width: 620px) {
@@ -168,6 +181,24 @@ export default function GospelCarousel({
   onSelectTab: (tab: TabKey) => void;
 }) {
   const railRef = useRef<HTMLDivElement>(null);
+  // 현재 스크롤 위치가 맨 처음/맨 끝인지 추적해 화살표를 비활성화
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const updateEdges = useCallback(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const max = rail.scrollWidth - rail.clientWidth;
+    // 서브픽셀 오차 보정용 여유값
+    setAtStart(rail.scrollLeft <= 1);
+    setAtEnd(rail.scrollLeft >= max - 1);
+  }, []);
+
+  useEffect(() => {
+    updateEdges();
+    window.addEventListener("resize", updateEdges);
+    return () => window.removeEventListener("resize", updateEdges);
+  }, [updateEdges]);
 
   const scrollByCard = (dir: number) => {
     const rail = railRef.current;
@@ -214,11 +245,17 @@ export default function GospelCarousel({
             type="button"
             aria-label="이전 내용"
             onClick={() => scrollByCard(-1)}
+            disabled={atStart}
           >
             ‹
           </Arrow>
 
-          <Rail ref={railRef} tabIndex={0} aria-label="복음 이야기 순서대로 보기">
+          <Rail
+            ref={railRef}
+            tabIndex={0}
+            aria-label="복음 이야기 순서대로 보기"
+            onScroll={updateEdges}
+          >
             {GOSPEL_STEPS.map((step) => (
               <Card key={step.no}>
                 <Symbol aria-hidden>
@@ -250,6 +287,7 @@ export default function GospelCarousel({
             type="button"
             aria-label="다음 내용"
             onClick={() => scrollByCard(1)}
+            disabled={atEnd}
           >
             ›
           </Arrow>

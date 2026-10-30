@@ -104,6 +104,179 @@ export const GOSPEL_STEPS: GospelStep[] = [
 ];
 
 // -------------------------------------------------------------
+// 히어로(썸네일) 말씀
+//  - 일정 간격으로 돌아가며 노출되는 말씀 목록
+//  - 여기에 { text, ref } 를 추가하면 자동으로 회전 목록에 포함됩니다.
+// -------------------------------------------------------------
+
+export interface HeroVerse {
+  /** 말씀 본문 */
+  text: string;
+  /** 출처 (예: 요한복음 3:16) */
+  ref: string;
+}
+
+/** 썸네일(히어로) 영역에서 돌아가며 보여줄 말씀. 자유롭게 추가/수정 가능. */
+export const HERO_VERSES: HeroVerse[] = [
+  {
+    text: "수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라",
+    ref: "마태복음 11:28",
+  },
+  {
+    text: "하나님께서 세상을 이처럼 사랑하셔서 독생자를 주셨으니 이는 그를 믿는 사람마다 멸망하지 않고 영생을 얻게 하려는 것이다",
+    ref: "요한복음 3:16",
+  },
+  {
+    text: "예수께서 사람들에게 다시 말씀하셨습니다. 나는 세상의 빛이다. 누구든지 나를 따르는 사람은 어둠 속에 다니지 않고 생명의 빛을 얻을 것이다",
+    ref: "요한복음 8:12",
+  },
+  {
+    text: "이제 소망의 하나님께서 여러분의 믿음 생활 가운데 모든 기쁨과 평강을 충만하게 하셔서 성령의 능력으로 소망이 흘러넘치게 하시기를 빕니다",
+    ref: "로마서 15:13",
+  },
+];
+
+/** 히어로 말씀 전환 간격 (ms) */
+export const HERO_VERSE_INTERVAL = 20_000;
+
+// -------------------------------------------------------------
+// 말씀 추천 (주제별)
+//  - 지금 마음에 가까운 주제를 골라 말씀을 만나는 섹션
+// -------------------------------------------------------------
+
+export type ScriptureTopic =
+  | "thanks"
+  | "hope"
+  | "guidance"
+  | "trust"
+  | "timing"
+  | "love"
+  | "life";
+
+export interface ScriptureTopicMeta {
+  key: ScriptureTopic;
+  label: string;
+}
+
+export const SCRIPTURE_TOPICS: ScriptureTopicMeta[] = [
+  { key: "thanks", label: "감사" },
+  { key: "hope", label: "소망" },
+  { key: "guidance", label: "인도" },
+  { key: "trust", label: "신뢰" },
+  { key: "timing", label: "하나님의 때" },
+  { key: "love", label: "사랑" },
+  { key: "life", label: "생명" },
+];
+
+export interface Scripture {
+  topic: ScriptureTopic;
+  /** 본문 줄 (줄 단위로 끊어 보여줌) */
+  lines: string[];
+  /** 출처 (예: 시편 107:1–3) */
+  ref: string;
+}
+
+export const SCRIPTURES: Scripture[] = [
+  {
+    topic: "thanks",
+    lines: [
+      "여호와께 감사하라 그는 선하시며",
+      "그 인자하심이 영원함이로다",
+      "여호와의 속량을 받은 자들은 이같이 말할지어다",
+      "여호와께서 대적의 손에서 그들을 속량하사",
+      "동서 남북 각 지방에서부터 모으셨도다",
+    ],
+    ref: "시편 107:1–3",
+  },
+  {
+    topic: "hope",
+    lines: [
+      "여호와여 나의 종말과 연한이 언제까지인지 알게 하사",
+      "내가 나의 연약함을 알게 하소서 …",
+      "사람은 그가 든든히 서 있는 때에도",
+      "진실로 모두가 허사뿐이니이다",
+      "주여 이제 내가 무엇을 바라리요",
+      "나의 소망은 주께 있나이다",
+    ],
+    ref: "시편 39:4–5, 7",
+  },
+  {
+    topic: "guidance",
+    lines: [
+      "그가 자기 백성을 양 같이 인도하여 내시고",
+      "광야에서 양 떼 같이 지도하셨도다",
+      "그들을 안전히 인도하시니 그들은 두려움이 없었으나",
+      "그들의 원수는 바다에 빠졌도다",
+    ],
+    ref: "시편 78:52–53",
+  },
+  {
+    topic: "guidance",
+    lines: [
+      "여호와는 나의 목자시니 내게 부족함이 없으리로다",
+      "그가 나를 푸른 풀밭에 누이시며",
+      "쉴 만한 물가로 인도하시는도다",
+    ],
+    ref: "시편 23:1–2",
+  },
+  {
+    topic: "trust",
+    lines: [
+      "그러므로 우리가 담대히 말하되",
+      "주는 나를 돕는 이시니 내가 무서워하지 아니하겠노라",
+      "사람이 내게 어찌하리요 하노라",
+      "예수 그리스도는 어제나 오늘이나",
+      "영원토록 동일하시니라",
+    ],
+    ref: "히브리서 13:6, 8",
+  },
+  {
+    topic: "timing",
+    lines: [
+      "하나님이 모든 것을 지으시되 때를 따라 아름답게 하셨고",
+      "또 사람들에게는 영원을 사모하는 마음을 주셨느니라",
+      "… 사람으로 측량할 수 없게 하셨도다",
+    ],
+    ref: "전도서 3:11",
+  },
+  {
+    topic: "love",
+    lines: [
+      "나의 사랑하는 자가 내게 말하여 이르기를",
+      "나의 사랑, 내 어여쁜 자야 일어나서 함께 가자",
+    ],
+    ref: "아가 2:10",
+  },
+  {
+    topic: "love",
+    lines: [
+      "나는 선한 목자라 나는 내 양을 알고 양도 나를 아는 것이",
+      "아버지께서 나를 아시고 내가 아버지를 아는 것 같으니",
+      "나는 양을 위하여 목숨을 버리노라",
+    ],
+    ref: "요한복음 10:14–15",
+  },
+  {
+    topic: "love",
+    lines: [
+      "그러므로 사랑을 받는 자녀같이 너희는 하나님을 본받는 자가",
+      "되고 그리스도께서 너희를 사랑하신 것같이 너희도 사랑 가운데서",
+      "행하라 그는 우리를 위하여 자신을 버리사…",
+    ],
+    ref: "에베소서 5:1–2",
+  },
+  {
+    topic: "life",
+    lines: [
+      "만물이 그로 말미암아 지은 바 되었으니 지은 것이 하나도",
+      "그가 없이는 된 것이 없느니라 그 안에 생명이 있었으니",
+      "이 생명은 사람들의 빛이라",
+    ],
+    ref: "요한복음 1:3–4",
+  },
+];
+
+// -------------------------------------------------------------
 // 찬양 추천
 // -------------------------------------------------------------
 
@@ -160,7 +333,7 @@ export const SONGS: Record<SongMood, Song[]> = {
     { title: "Love Letter", artist: "제이어스", youtubeID: "ZQppjVXpbbA" },
     { title: "하나님의 열심", artist: "러빔", youtubeID: "QkHKe6bPPE0" },
     { title: "나 주님을 모른다 하여도", artist: "팀룩", youtubeID: "VeuP0yejeYM" },
-    { title: "사랑한다 말하시네", artist: "기프티드", youtubeID: "90N9uLZPwKw" },
+    { title: "사랑한다 말하시네", artist: "기프티드", youtubeID: "A_SEQKpeHVw" },
     { title: "누군가 널 위해 기도하네", artist: "Gina", youtubeID: "W3KElVsukPU" },
     { title: "샬롬", artist: "김상진", youtubeID: "jU9N7Skw_b4" },
     { title: "나의 안에 거하라", artist: "김상진", youtubeID: "oIgpHu4B6bk" },
@@ -174,7 +347,7 @@ export const SONGS: Record<SongMood, Song[]> = {
     { title: "주님 마음 내게 주소서", artist: "마커스", youtubeID: "TcogMm4emKQ" }
   ],
   "strength": [
-    { title: "어둔 날 다 지나고", artist: "위러브", youtubeID: "uHHYagMPOro" },
+    { title: "어둔 날 다 지나고", artist: "위러브", youtubeID: "EqDL2-OW1Z4" },
     { title: "주를 찾는 모든 자들이", artist: "팀룩워십", youtubeID: "Fi2waeWY18g" },
     { title: "너는 꽃이야", artist: "Hisplan", youtubeID: "QNuN6618rS4" },
     { title: "주의 음성을 내가 들으니", artist: "제이어스", youtubeID: "_YrZ6l_LZHI" },
@@ -182,21 +355,21 @@ export const SONGS: Record<SongMood, Song[]> = {
     { title: "새 힘 얻으리", artist: "Hisplan", youtubeID: "bU_ShwpQzaQ" },
     { title: "주가 지으신 이 날에", artist: "어노인팅", youtubeID: "FkpbYaNiU8Y" },
     { title: "We Praise You", artist: "Bethel Music & Brandon Lake", youtubeID: "vVVXeKCg9w4" },
-    { title: "Washed", artist: "Elevation Worship", youtubeID: "O3TAEexierM" },
+    { title: "Washed", artist: "Elevation Rhythm", youtubeID: "JjgkhHlTROQ" },
     { title: "Goodbye Yesterday", artist: "Elevation Worship", youtubeID: "qOD9M95_fS0" },
     { title: "내힘이 되신", artist: "Histigma", youtubeID: "EX03xrCwkyk" },
     { title: "Need You, Lord!", artist: "Hisplan", youtubeID: "kaaKrquxAN0" },
     { title: "두려움 떠나네", artist: "아갓유", youtubeID: "OMLkqmilEgo" },
     { title: "I Thank God", artist: "Elevation Worship", youtubeID: "LM1qrx0Huds" },
-    { title: "Here Again", artist: "Elevation Worship", youtubeID: "aIdZ5KRiakM" },
+    { title: "Here Again", artist: "Elevation Worship", youtubeID: "zfLcdBuB7NY" },
     { title: "Confidence", artist: "Sanctus Real", youtubeID: "KA9kSBv1QrI" },
     { title: "전신갑주", artist: "아이자야식스티원", youtubeID: "17Qykmf8oS4" },
-    { title: "불을 내려주소서", artist: "천관웅", youtubeID: "DpHuf3TfRnE" },
-    { title: "태산을 넘어 험곡에 가도", artist: "아이자야식스티원", youtubeID: "__eQZBul7-g" }
+    { title: "불을 내려주소서", artist: "천관웅", youtubeID: "DO1LCn6mRXE" },
+    { title: "태산을 넘어 험곡에 가도", artist: "아이자야식스티원", youtubeID: "xZVKbIrOqhI" }
   ],
   "curious": [
-    { title: "하나님의 세계", artist: "홍이삭", youtubeID: "nUTvfKu7q3c" },
-    { title: "지극히 높으신 주", artist: "예람워십", youtubeID: "o_7pBZ7Ih8U" },
+    { title: "하나님의 세계", artist: "예람워십", youtubeID: "AMMSKHJC8OU" },
+    { title: "지극히 높으신 주", artist: "예람워십", youtubeID: "WHuCSCApXrQ" },
     { title: "나의 하나님", artist: "예람워십", youtubeID: "YnyY7dsWPg0" },
     { title: "예수 우리들의 밝은 빛", artist: "어노인팅", youtubeID: "bBsVACE3tkQ" },
     { title: "그가 오신 이유", artist: "심종호", youtubeID: "6MCaECq6Czg" },
@@ -209,16 +382,16 @@ export const SONGS: Record<SongMood, Song[]> = {
   "love": [
     { title: "하나님의 사랑이", artist: "WELOVE", youtubeID: "fV69rb_MO3o" },
     { title: "내 모습이대로", artist: "JUS", youtubeID: "7w3dvCQ3m1I" },
-    { title: "사랑은 여전히 사랑이어서", artist: "한웅재", youtubeID: "cdKib8Oearw" },
+    { title: "사랑은 여전히 사랑이어서", artist: "한웅재", youtubeID: "-p8O4ENLc0I" },
     { title: "예수 사랑하심은", artist: "아이자야식스티원", youtubeID: "A_drAemgpYc" },
     { title: "하나님께서 세상을 사랑하사", artist: "어노인팅", youtubeID: "-n24d45myCg" },
-    { title: "그 크신 하나님의 사랑", artist: "제이어스", youtubeID: "VuGyGTKbOpQ" },
+    { title: "그 크신 하나님의 사랑", artist: "제이어스", youtubeID: "TKWMHZSSt-w" },
     { title: "진리", artist: "어노인팅", youtubeID: "602e5ZZokl0" },
-    { title: "Washed", artist: "Elevation Worship", youtubeID: "TXG-5Do-hGg" },
+    { title: "Washed", artist: "Elevation Rhythm", youtubeID: "JjgkhHlTROQ" },
     { title: "주님의 선하심", artist: "기프티드", youtubeID: "f0PASE89D6E" },
     { title: "사랑중에 사랑", artist: "WELOVE", youtubeID: "GDoarJJezi0" },
     { title: "은혜", artist: "손경민", youtubeID: "pZuW2CV0mXY" },
-    { title: "소원", artist: "한웅재", youtubeID: "EMJLuwJpehE" },
+    { title: "소원", artist: "한웅재", youtubeID: "-B3w7mjRK6I" },
     { title: "예수사랑하심은", artist: "아이자야 식스티원", youtubeID: "A_drAemgpYc" }
   ]
 }
@@ -436,6 +609,7 @@ export type TabKey =
   | "explore"
   | "why"
   | "gospel"
+  | "scripture"
   | "qna"
   | "songs"
   | "cgn"
@@ -451,6 +625,7 @@ export const TABS: TabMeta[] = [
   { key: "explore", label: "둘러보기" },
   { key: "why", label: "우리가 전도하는 이유" },
   { key: "gospel", label: "복음 이야기" },
+  { key: "scripture", label: "말씀 추천" },
   { key: "qna", label: "질문하기" },
   { key: "songs", label: "찬양 추천" },
   { key: "cgn", label: "CGN 영상" },
@@ -484,6 +659,12 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     icon: "✝️",
     title: "복음에 대해 들어보실래요?",
     desc: "참된 행복과 평안, 영생에 관한 이야기",
+  },
+  {
+    tab: "scripture",
+    icon: "📖",
+    title: "말씀 추천",
+    desc: "지금 마음에 가까운 주제를 골라 말씀 만나기",
   },
   {
     tab: "qna",
