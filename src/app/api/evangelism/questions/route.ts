@@ -13,6 +13,61 @@ const DUPLICATE_WINDOW_MINUTES = 3;
 const PUBLIC_ANSWERED_LIMIT = 50;
 
 /**
+ * 연락처 수단(종류). 방문자가 드롭다운에서 하나를 고르고, 종류에 맞는 형식만
+ * 통과시킨다. DB(contact 컬럼)에는 "라벨: 값" 형태로 저장해 admin 에서
+ * 어떤 수단으로 답장해야 하는지 한눈에 보이게 한다.
+ */
+type ContactType = "email" | "kakao" | "phone";
+
+const CONTACT_LABEL: Record<ContactType, string> = {
+  email: "이메일",
+  kakao: "카카오톡 ID",
+  phone: "전화번호",
+};
+
+function isContactType(v: unknown): v is ContactType {
+  return v === "email" || v === "kakao" || v === "phone";
+}
+
+/**
+ * 선택한 수단에 맞게 연락처 값을 검증 + 정규화한다.
+ * - 유효하면 { ok: true, value } (정규화된 값) 반환
+ * - 유효하지 않으면 { ok: false, message } (사용자 안내 문구) 반환
+ */
+function validateContact(
+  type: ContactType,
+  raw: string
+): { ok: true; value: string } | { ok: false; message: string } {
+  const v = raw.trim();
+
+  switch (type) {
+    case "email": {
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return { ok: true, value: v };
+      return { ok: false, message: "이메일 주소를 정확히 입력해주세요. (예: name@example.com)" };
+    }
+    case "kakao": {
+      // 카카오톡 ID: 영문 소문자/숫자/._- 4~20자 (영문 1자 이상 포함)
+      if (/^[a-z0-9._-]{4,20}$/.test(v) && /[a-z]/.test(v))
+        return { ok: true, value: v };
+      return {
+        ok: false,
+        message: "카카오톡 ID를 정확히 입력해주세요. (영문 소문자·숫자 4~20자)",
+      };
+    }
+    case "phone": {
+      const digits = v.replace(/\D/g, "");
+      // 국내 휴대폰/일반전화: 숫자 9~11자리
+      if (/^[0-9()+\-\s]+$/.test(v) && digits.length >= 9 && digits.length <= 11)
+        return { ok: true, value: v };
+      return {
+        ok: false,
+        message: "전화번호를 정확히 입력해주세요. (예: 010-1234-5678)",
+      };
+    }
+  }
+}
+
+/**
  * 전도 페이지 질문 접수 API.
  *
  * 전도 대상자는 비로그인 익명 방문자이므로 세션/인증을 요구하지 않는다.
@@ -25,13 +80,23 @@ export async function POST(req: Request) {
     const rawQuestion = typeof body.question === "string" ? body.question.trim() : "";
     const rawName = typeof body.name === "string" ? body.name.trim() : "";
     const rawContact = typeof body.contact === "string" ? body.contact.trim() : "";
+    const rawContactType = body.contactType;
 
+    // 연락처 수단(종류) 선택 필수
+    if (!isContactType(rawContactType)) {
+      return jsonError("답변 받을 연락처 종류를 선택해주세요.", 400);
+    }
     // 연락처가 없으면 답변을 전달할 방법이 없으므로 질문 자체를 받지 않는다.
     if (!rawContact) {
       return jsonError("답변 받을 연락처를 입력해주세요.", 400);
     }
     if (rawContact.length > MAX_CONTACT_LENGTH) {
       return jsonError(`연락처는 ${MAX_CONTACT_LENGTH}자를 초과할 수 없습니다.`, 400);
+    }
+    // 선택한 수단에 맞는 형식인지 검증 (예: "010-2" 같은 불완전 번호 차단)
+    const contactCheck = validateContact(rawContactType, rawContact);
+    if (!contactCheck.ok) {
+      return jsonError(contactCheck.message, 400);
     }
     if (!rawQuestion) {
       return jsonError("질문 내용을 입력해주세요.", 400);
@@ -42,7 +107,11 @@ export async function POST(req: Request) {
 
     // name 컬럼은 NOT NULL 이므로 익명(미입력) 시 null 대신 빈 문자열로 저장한다.
     const name = rawName ? rawName.slice(0, MAX_NAME_LENGTH) : "";
-    const contact = rawContact.slice(0, MAX_CONTACT_LENGTH);
+    // DB 에는 "라벨: 값" 형태로 저장해 admin 이 수단을 바로 알 수 있게 한다.
+    const contact = `${CONTACT_LABEL[rawContactType]}: ${contactCheck.value}`.slice(
+      0,
+      MAX_CONTACT_LENGTH
+    );
 
     const userIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -105,7 +174,9 @@ export async function POST(req: Request) {
 /**
  * 공개 Q&A 목록.
  *
- * 관리자(hub_web)에서 답변을 작성해 status 가 "answered" 가 된 질문만 노출한다.
+ * 관리자(hub_web)에서 답변을 작성한 질문을 노출한다.
+ * status 가 "answered"(답변 완료) 든 "closed"(종료) 든, 실제 answer 가 채워진
+ * 질문이면 공개한다. (관리자 상태 라벨에 의존하지 않고 "답변 유무" 로 판단)
  * 개인정보 보호를 위해 contact 는 절대 내려주지 않으며, 이름도 생략한다.
  * (익명으로 다른 방문자들이 "어떤 질문에 어떻게 답했는지" 를 볼 수 있게 하는 용도)
  */
@@ -114,7 +185,6 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from("evangelism_questions")
       .select("id, question, answer, answered_at, created_at")
-      .eq("status", "answered")
       .not("answer", "is", null)
       .order("answered_at", { ascending: false })
       .limit(PUBLIC_ANSWERED_LIMIT);
@@ -133,7 +203,12 @@ export async function GET() {
         answeredAt: row.answered_at ?? row.created_at ?? null,
       }));
 
-    return jsonOk({ items });
+    // 실시간 갱신이 필요 없으므로 CDN 에서 하루(86400초) 캐싱한다.
+    // stale-while-revalidate 로 만료 후에도 즉시 응답하고 백그라운드에서 갱신.
+    return jsonOk({ items }, 200, {
+      "Cache-Control":
+        "public, s-maxage=86400, max-age=0, stale-while-revalidate=86400",
+    });
   } catch (error) {
     console.error("Evangelism Public Q&A API Error:", error);
     return jsonError("서버 오류가 발생했습니다.", 500);
